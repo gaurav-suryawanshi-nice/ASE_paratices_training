@@ -1,5 +1,6 @@
 package org.nice.ase.tdd.stack;
 
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -16,87 +17,86 @@ public class LinkedListBasesStackTest {
 
     @Test
     public void isStackEmptyTest() {
-        //Given
+        //arrange
         LinkedListBasesStack sut = new LinkedListBasesStack();
-        //When
+        //act
         boolean result = sut.isEmpty();
-        //Then
+        //assert
         assertTrue(result);
     }
 
     @Test
     public void afterPushOneStackShouldNotEmptyTest() {
-        //Given
+        //arrange
         LinkedListBasesStack sut = new LinkedListBasesStack();
         sut.push(42);
-        //When
+        //act
         boolean result = sut.isEmpty();
-        //Then
+        //assert
         assertFalse(result);
     }
 
     @Test
     public void afterPushOneAndPopOneStackShouldEmptyTest() {
-        //Given
+        //arrange
         LinkedListBasesStack sut = new LinkedListBasesStack();
         sut.push(42);
         int popped = sut.pop();
-        //When
+        //act
         boolean result = sut.isEmpty();
-        //Then
+        //assert
         assertTrue(result);
     }
 
     @Test
     public void afterPushTwoAndPopOneStackShouldNotEmptyTest() {
-        //Given
+        //arrange
         LinkedListBasesStack sut = new LinkedListBasesStack();
         sut.push(42);
         sut.push(7);
-        int popped = sut.pop();
-        //When
+        sut.pop();
+        //act
         boolean result = sut.isEmpty();
-        //Then
+        //assert
         assertFalse(result);
     }
 
     @Test
     public void afterPushOneAndPopOneStackShouldBeSameTest() {
-        //Given
+        //arrange
         sut.push(42);
-        //When
+        //act
         int popped = sut.pop();
-        //Then
+        //assert
         assertEquals(42, popped);
     }
 
     @Test
     public void afterPushTwoAndPopTwoStackShouldBeInReverseOrderTest() {
-        //Given
+        //arrange
         LinkedListBasesStack sut = new LinkedListBasesStack();
         sut.push(42);
         sut.push(7);
-        //When
+        //act
         int poppedFirst = sut.pop();
         int poppedSecond = sut.pop();
-        //Then
+        //assert
         assertEquals(7, poppedFirst);
         assertEquals(42, poppedSecond);
     }
 
     @Test
     public void ShouldThrowErrorWhenPopFromEmptyStackTest() {
-        //Given
+        //arrange
         boolean isExceptionThrown = false;
         LinkedListBasesStack sut = new LinkedListBasesStack();
-        //When
-        try {
-            int poppedFirst = sut.pop();
-        } catch (Exception e) {
-            isExceptionThrown = true;
-        }
-        //Then
-        assertEquals(true, isExceptionThrown);
+        //act
+        StackEmptyException exception = Assertions.assertThrows(StackEmptyException.class, () -> {
+            sut.pop();
+
+        });
+        //assert
+        assertEquals("Stack is empty", exception.getMessage());
 
     }
 }

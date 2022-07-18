@@ -10,21 +10,18 @@ public class LinkedListBasesStack {
     }
 
     public void push(int element) {
-        StackNode newElement = new StackNode(element, head);
-        head = newElement;
+        head = new StackNode(element, head);
         size++;
-        String practice;
     }
 
 
     public int pop() {
-        if (size > 0) {
-            size--;
-            int element = head.getValue();
-            head = head.getNext();
-            return element;
-        } else {
-            throw new RuntimeException("Stack is empty");
+        if (size == 0) {
+            throw new StackEmptyException("Stack is empty");
         }
+        size--;
+        int element = head.getValue();
+        head = head.getNext();
+        return element;
     }
 }
