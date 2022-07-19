@@ -8,25 +8,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class WordWrapTest {
     @Test
     public void onEmptyStringReturnEmptyStringTest() {
+        //act
         String result = WordWrapper.wrap("", 2);
+        //assert
         assertEquals("", result);
     }
 
     @Test
     public void onStringShorterThenWidthReturnStringTest() {
+        //act
         String result = WordWrapper.wrap("abc", 4);
+        //assert
         assertEquals("abc", result);
     }
 
     @Test
     public void singleSplitTest() {
+        //act
         String result = WordWrapper.wrap("abcd", 2);
+        //assert
         assertEquals("ab\ncd", result);
     }
 
     @Test
     public void multipleSplitWithoutWhiteSpacesTest() {
+        //act
         String result = WordWrapper.wrap("abcdefgh", 2);
+        //assert
         assertEquals("ab\ncd\nef\ngh", result);
     }
 
