@@ -88,7 +88,6 @@ public class LinkedListBasesStackTest {
     @Test
     public void ShouldThrowErrorWhenPopFromEmptyStackTest() {
         //arrange
-        boolean isExceptionThrown = false;
         LinkedListBasesStack sut = new LinkedListBasesStack();
         //act
         StackEmptyException exception = Assertions.assertThrows(StackEmptyException.class, () -> {
