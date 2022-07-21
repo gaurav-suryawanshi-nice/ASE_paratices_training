@@ -30,21 +30,31 @@ public class ShortenerController {
     @GetMapping("/{id}")
     public ResponseEntity get(@PathVariable(value = "id") String id) {
         if (id.length() > 5) {
-            return useCase.getById(id)
-                    .map(redirect())
-                    .orElseGet(notFound());
+            return getShortenURL(id);
         } else {
-            Optional<Map<String, List<ShortenURL>>> urls = shortenerCollectionUserCase.getById(id);
-            if (urls.isPresent()) {
-                Optional<List<ShortenURL>> shortenUrlCollection = urls.get().values().stream().findFirst();
-                List<CreateURLResponse> responses = shortenUrlCollection.get().stream().map
-                        (url -> new CreateURLResponse(url.getUrl(), url.getOriginalUrl())).collect(Collectors.toList());
-                return new ResponseEntity(responses, HttpStatus.OK);
-            } else {
-                notFoundCollection();
-            }
+            ResponseEntity responses = getUrlCollection(id);
+            if (responses != null) return responses;
         }
         return new ResponseEntity("Resource not found", HttpStatus.NOT_FOUND);
+    }
+
+    private ResponseEntity getUrlCollection(String id) {
+        Optional<Map<String, List<ShortenURL>>> urls = shortenerCollectionUserCase.getById(id);
+        if (urls.isPresent()) {
+            Optional<List<ShortenURL>> shortenUrlCollection = urls.get().values().stream().findFirst();
+            List<CreateURLResponse> responses = shortenUrlCollection.get().stream().map
+                    (url -> new CreateURLResponse(url.getUrl(), url.getOriginalUrl())).collect(Collectors.toList());
+            return new ResponseEntity(responses, HttpStatus.OK);
+        } else {
+            notFoundCollection();
+        }
+        return null;
+    }
+
+    private ResponseEntity<Object> getShortenURL(String id) {
+        return useCase.getById(id)
+                .map(redirect())
+                .orElseGet(notFound());
     }
 
     @PostMapping("/collection")

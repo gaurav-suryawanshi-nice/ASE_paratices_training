@@ -1,6 +1,7 @@
 package interactor;
 
 import exception.FailedToCreatURLException;
+import exception.IDGenerationFailureException;
 import exception.URLAlreadyExists;
 import gateway.URLCollectionGateway;
 import generator.IDGenerator;
@@ -41,8 +42,8 @@ public class ShortenerUrlCollectionInteractor implements ShortenerCollectionUseC
                 } catch (URLAlreadyExists urlAlreadyExists) {
                     collision = true;
                     collisions.add(urlAlreadyExists.getUrl());
-                } catch (IOException ioException) {
-                    throw new FailedToCreatURLException();
+                } catch (IDGenerationFailureException idGeneratorException) {
+                    throw idGeneratorException;
                 }
             } while (collision);
         }
@@ -60,11 +61,9 @@ public class ShortenerUrlCollectionInteractor implements ShortenerCollectionUseC
                     if (!urlCollection.containsKey(id)) {
                         urlCollection.put(id, url);
                     } else {
-                        throw new URLAlreadyExists(url);
+                        collision = true;
+                        collisions.add(url);
                     }
-                } catch (URLAlreadyExists urlAlreadyExists) {
-                    collision = true;
-                    collisions.add(urlAlreadyExists.getUrl());
                 } catch (FailedToCreatURLException failedToCreatURLException) {
                     throw new FailedToCreatURLException();
                 }

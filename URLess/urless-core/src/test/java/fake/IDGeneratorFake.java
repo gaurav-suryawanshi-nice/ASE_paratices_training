@@ -1,5 +1,6 @@
 package fake;
 
+import exception.IDGenerationFailureException;
 import generator.IDGenerator;
 import lombok.Getter;
 
@@ -24,7 +25,7 @@ public class IDGeneratorFake implements IDGenerator {
     }
 
     @Override
-    public String generate(List<String> urls, Set<String> collisions) throws IOException {
+    public String generate(List<String> urls, Set<String> collisions) throws IDGenerationFailureException {
         String result = ids.get(current);
         current = (current + 1) % ids.size();
         this.collisions = collisions;

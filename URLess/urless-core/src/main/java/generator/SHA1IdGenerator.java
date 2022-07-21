@@ -1,6 +1,7 @@
 package generator;
 
 import exception.FailedToCreatURLException;
+import exception.IDGenerationFailureException;
 
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
@@ -43,7 +44,7 @@ public class SHA1IdGenerator implements IDGenerator {
     }
 
     @Override
-    public String generate(List<String> urls, Set<String> collisions) throws IOException {
+    public String generate(List<String> urls, Set<String> collisions) throws IDGenerationFailureException {
         MessageDigest md = null;
         try {
             md = MessageDigest.getInstance("SHA-1");
@@ -53,7 +54,11 @@ public class SHA1IdGenerator implements IDGenerator {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream out = new DataOutputStream(baos);
         for (String element : urls) {
-            out.writeUTF(element);
+            try {
+                out.writeUTF(element);
+            } catch (IOException e) {
+                throw new IDGenerationFailureException();
+            }
         }
         byte[] urlBytes = baos.toByteArray();
         boolean collision = false;
