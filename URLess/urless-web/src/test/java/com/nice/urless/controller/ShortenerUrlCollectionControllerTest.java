@@ -1,9 +1,12 @@
 package com.nice.urless.controller;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nice.urless.ServiceConfigurations;
+import com.nice.urless.dto.CreateURLCollectionRequest;
 import com.nice.urless.dto.CreateURLRequest;
 import com.nice.urless.dto.CreateURLResponse;
+import gateway.URLCollectionGateway;
 import gateway.URLGateway;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,24 +19,30 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import shortener.ShortenURL;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@SpringBootTest(classes = {ShortenerControllerTest.class, ServiceConfigurations.class, ShortenerController.class})
+@SpringBootTest(classes = {ShortenerUrlCollectionControllerTest.class, ServiceConfigurations.class, ShortenerController.class})
 @AutoConfigureMockMvc
 @EnableWebMvc
-public class ShortenerControllerTest {
+public class ShortenerUrlCollectionControllerTest {
     @Autowired
     private MockMvc mockMvc;
     @Autowired
-    private URLGateway urlGateway;
+    private URLCollectionGateway urlCollectionGateway;
 
     @Test
     public void shouldReturnNotfoundOnNonExistingURL() throws Exception {
-        mockMvc.perform(get("/NON_EXISTING-URL"))
+        mockMvc.perform(get("/NON_EXISTING-URL_COLLECATION_ID"))
                 .andExpect(status().isNotFound())
                 .andExpect(MockMvcResultMatchers
                         .content()
@@ -43,9 +52,10 @@ public class ShortenerControllerTest {
     @Test
     public void shouldReturn301OnExistingURL() throws Exception {
         //arrange
-        urlGateway.create("http://some.test", "abcde12");
+        List<String> urls = Arrays.asList("http://some.test");
+        urlCollectionGateway.create(urls, "abcd1");
         //act and assert
-        mockMvc.perform(get("/abcde12"))
+        mockMvc.perform(get("/abcd1"))
                 .andExpect(status().isMovedPermanently())
                 .andExpect(header().string("Location", "http://some.test"));
     }
@@ -54,18 +64,17 @@ public class ShortenerControllerTest {
     public void shouldReturn201OnCreatingURL() throws Exception {
         //arrange
         ObjectMapper objectMapper = new ObjectMapper();
-        CreateURLRequest request = new CreateURLRequest("http://some.url");
+        List<String> urlCollection = Arrays.asList("http://some.url");
+        CreateURLCollectionRequest request = new CreateURLCollectionRequest(urlCollection);
         String json = objectMapper.writeValueAsString(request);
         //act
-        MvcResult result = mockMvc.perform(post("/").contentType(MediaType.APPLICATION_JSON).content(json))
+        MvcResult result = mockMvc.perform(post("/collection").contentType(MediaType.APPLICATION_JSON).content(json))
                 .andExpect(status().isCreated()).andReturn();
-        CreateURLResponse response = objectMapper.readValue(result.getResponse().getContentAsString(), CreateURLResponse.class);
-        ShortenURL expected = urlGateway.getAll().get(0);
+        List<CreateURLResponse> response = objectMapper.readValue(result.getResponse().getContentAsString(), new TypeReference<List<CreateURLResponse>>() {
+        });
+        Map<String, List<ShortenURL>> expected = urlCollectionGateway.getAll();
         //assert
-        assertEquals(expected.getUrl(), response.getOriginalUrl());
-        assertEquals("http://urle.ss/" + expected.getId(), response.getUrl());
+        assertEquals(expected.values().stream().flatMap(Collection::stream).collect(Collectors.toList()).get(0).getUrl(), response.get(0).getUrl());
 
     }
-
-
 }
